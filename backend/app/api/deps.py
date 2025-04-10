@@ -123,30 +123,3 @@ def require_role(required_role: Role):
         return current_user
 
     return Depends(role_checker)
-
-def require_team_membership(team_id: int = Path(..., description="Team ID from the request path")):
-    """
-    Dependency to check if a RACINGTEAM user is accessing their own team.
-    """
-    def membership_dependency(current_user: CurrentUser):
-        # Superusers and RaceControl can access all teams
-        if current_user.role in {Role.SUPERUSER, Role.RACECONTROL}:
-            return current_user  # No restriction needed
-
-        # RACINGTEAM users can only access their own team
-        if current_user.role == Role.RACINGTEAM:
-            if current_user.team_id != team_id:
-                print(team_id)
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail="You do not have permission to access this team."
-                )
-            else:
-                return current_user
-
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You do not have permission to access this team."
-        )
-
-    return Depends(membership_dependency)
