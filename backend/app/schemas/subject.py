@@ -1,0 +1,24 @@
+from pydantic import BaseModel
+from typing import Optional
+from datetime import datetime
+
+
+class SubjectBase(BaseModel):
+    name: str
+    description: Optional[str] = None
+    semester: Optional[str] = None
+    teacher_name: Optional[str] = None
+    color: Optional[str] = None
+
+
+class SubjectCreate(SubjectBase):
+    pass
+
+
+class SubjectRead(SubjectBase):
+    id: int
+    created_at: datetime
+    updated_at: Optional[datetime]
+
+    class Config:
+        orm_mode = True
