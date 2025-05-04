@@ -13,3 +13,5 @@ class User(Base):
     role = Column(Enum(Role), nullable=False)
     created_at = Column(DateTime, nullable=False)
     updated_at = Column(DateTime, nullable=True)
+
+    subject = relationship("Subject", back_populates="user")
