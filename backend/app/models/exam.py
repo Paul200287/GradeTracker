@@ -19,5 +19,7 @@ class Exam(Base):
     deleted_at = Column(DateTime, nullable=True)
 
     subject = relationship("Subject", back_populates="exam")
+    grades = relationship("Grade", back_populates="exam")
 
 from app.models.subject import Subject
+from app.models.grade import Grade
