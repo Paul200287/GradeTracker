@@ -4,6 +4,7 @@ from datetime import datetime
 
 
 class SubjectBase(BaseModel):
+    user_id: int
     name: str
     description: Optional[str] = None
     semester: Optional[str] = None
@@ -18,6 +19,7 @@ class SubjectRead(SubjectBase):
     id: int
     created_at: datetime
     updated_at: Optional[datetime]
+    deleted_at: Optional[datetime]
 
 class SubjectUpdate(BaseModel):
     name: Optional[str] = None
