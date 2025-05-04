@@ -17,4 +17,5 @@ class Subject(Base):
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
 
-    users = relationship("SubjectUser", back_populates="subject", cascade="all, delete-orphan")
+    #users = relationship("SubjectUser", back_populates="subject")
+    exam = relationship("Exam", back_populates="subject")
