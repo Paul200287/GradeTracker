@@ -16,7 +16,15 @@ class ExamCreate(ExamBase):
 
 
 class ExamRead(ExamBase):
-    id: int
     subject_id: int
     created_at: datetime
     updated_at: Optional[datetime]
+    deleted_at: Optional[datetime]
+
+
+class ExamUpdate(BaseModel):
+    title: Optional[str] = None
+    date: Optional[datetime] = None
+    type: Optional[str] = None
+    weight: Optional[float] = None
+    max_score: Optional[float] = None
