@@ -8,7 +8,6 @@ class SubjectBase(BaseModel):
     description: Optional[str] = None
     semester: Optional[str] = None
     teacher_name: Optional[str] = None
-    color: Optional[str] = None
 
 
 class SubjectCreate(SubjectBase):
@@ -20,5 +19,8 @@ class SubjectRead(SubjectBase):
     created_at: datetime
     updated_at: Optional[datetime]
 
-    class Config:
-        orm_mode = True
+class SubjectUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    semester: Optional[str] = None
+    teacher_name: Optional[str] = None
