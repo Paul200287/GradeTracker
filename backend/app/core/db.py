@@ -10,6 +10,8 @@ from app.schemas import user as schemas
 from app.crud import user as crud
 from app.models.user import User
 from app.models.role import Role
+from app.models.exam import Exam
+from app.models.subject import Subject
 
 
 def init_db(session: Session) -> None:
