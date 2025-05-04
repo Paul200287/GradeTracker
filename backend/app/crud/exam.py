@@ -58,5 +58,6 @@ def delete_exam(db: Session, exam_id: int):
 
     db_exam.deleted_at = datetime.utcnow()
     db.commit()
+    db.refresh(db_exam)
 
     return True
