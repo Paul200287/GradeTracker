@@ -18,6 +18,7 @@ from app.schemas.user import User
 from app.crud.user import get_user_by_email
 
 from app.models.role import Role
+from app.models.subject import Subject
 
 # Database Session
 def get_db() -> Generator[Session, None, None]:
@@ -103,23 +104,10 @@ def get_current_active_superuser(current_user: CurrentUser) -> User:
         )
     return current_user
 
-def require_role(required_role: Role):
-    """
-    Returns a FastAPI dependency that enforces role-based access control.
-    """
-    def role_checker(current_user: CurrentUser):
-        role_hierarchy = {
-            Role.SUPERUSER: 3,
-            Role.RACECONTROL: 2,
-            Role.RACINGTEAM: 1,
-            Role.STARTLINEJUDGE: 0
-        }
+def verify_subject_ownership(current_user: CurrentUser) -> Subject:
+    if current_user.role != "Superuser":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="You do not have enough permissions!"
+        )
 
-        if role_hierarchy[current_user.role] < role_hierarchy[required_role]:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"User does not have the required permissions ({required_role.value} or higher)."
-            )
-        return current_user
-
-    return Depends(role_checker)
+    return current_user
