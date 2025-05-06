@@ -8,6 +8,7 @@ from app.exceptions.subject import *
 
 router = APIRouter()
 
+# Get a single subject by ID if the user has access
 @router.get("/{subject_id}", response_model=SubjectRead, dependencies=[Depends(get_current_user)], status_code=status.HTTP_200_OK)
 def get_subject(db: SessionDep, subject_id: int, current_user: User=Depends(get_current_user)):
     try:
@@ -18,6 +19,7 @@ def get_subject(db: SessionDep, subject_id: int, current_user: User=Depends(get_
         raise HTTPException(403, detail="Permission denied.")
 
 
+# Get all subjects visible to the current user
 @router.get("/", response_model=List[SubjectRead], dependencies=[Depends(get_current_user)], status_code=status.HTTP_200_OK)
 def get_subjects(db: SessionDep, current_user: User=Depends(get_current_user)):
     try:
@@ -26,6 +28,7 @@ def get_subjects(db: SessionDep, current_user: User=Depends(get_current_user)):
         raise HTTPException(403, detail="Permission denied.")
 
 
+# Create a new subject (requires editor or superuser)
 @router.post("/create-subject", response_model=SubjectRead, dependencies=[Depends(get_current_user)], status_code=status.HTTP_201_CREATED)
 def create_subject(db: SessionDep, data: SubjectCreate, current_user: User=Depends(get_current_user)):
     try:
@@ -36,6 +39,7 @@ def create_subject(db: SessionDep, data: SubjectCreate, current_user: User=Depen
         raise HTTPException(400, detail="Editors can only create subjects for themselves.")
 
 
+# Update an existing subject (requires editor or superuser)
 @router.put("/update-subject/{subject_id}", response_model=SubjectRead, dependencies=[Depends(get_current_user)], status_code=status.HTTP_201_CREATED)
 def update_subject(db: SessionDep, subject_id: int, new_data: SubjectUpdate, current_user: User=Depends(get_current_user)):
     try:
@@ -46,6 +50,7 @@ def update_subject(db: SessionDep, subject_id: int, new_data: SubjectUpdate, cur
         raise HTTPException(403, detail="Permission denied.")
 
 
+# Soft-delete a subject (requires editor or superuser)
 @router.delete("/delete-subject/{subject_id}", response_model=bool, dependencies=[Depends(get_current_user)], status_code=status.HTTP_200_OK)
 def delete_subject(db: SessionDep, subject_id: int, current_user: User=Depends(get_current_user)):
     try:

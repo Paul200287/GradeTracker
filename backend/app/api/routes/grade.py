@@ -10,6 +10,7 @@ from app.exceptions.grade import *
 
 router = APIRouter()
 
+# Fetch a single grade by ID (only for superusers or owners of the subject)
 @router.get("/{grade_id}", response_model=GradeRead, dependencies=[Depends(get_current_user)], status_code=status.HTTP_200_OK)
 def get_grade(grade_id: int, db: SessionDep, current_user: User=Depends(get_current_user)):
     try:
@@ -21,6 +22,7 @@ def get_grade(grade_id: int, db: SessionDep, current_user: User=Depends(get_curr
     except PermissionDenied:
         raise HTTPException(403, detail="Permission denied.")
 
+# Fetch all grades for the current user (superuser sees all)
 @router.get("/", response_model=List[GradeRead], dependencies=[Depends(get_current_user)], status_code=status.HTTP_200_OK)
 def get_grades(db: SessionDep, current_user: User=Depends(get_current_user)):
     try:
@@ -28,6 +30,7 @@ def get_grades(db: SessionDep, current_user: User=Depends(get_current_user)):
     except PermissionDenied:
         raise HTTPException(403, detail="Permission denied.")
 
+# Create a new grade (editor or superuser, subject must belong to user)
 @router.post("/create-grade", response_model=GradeRead, dependencies=[Depends(get_current_user)], status_code=status.HTTP_201_CREATED)
 def create_grade(data: GradeCreate, db: SessionDep, current_user: User=Depends(get_current_user)):
     try:
@@ -43,6 +46,7 @@ def create_grade(data: GradeCreate, db: SessionDep, current_user: User=Depends(g
     except InvalidGradeData:
         raise HTTPException(400, detail="Invalid grade data.")
 
+# Update an existing grade (editor or superuser, subject must belong to user)
 @router.put("/update-grade/{grade_id}", response_model=GradeRead, dependencies=[Depends(get_current_user)], status_code=status.HTTP_200_OK)
 def update_grade(grade_id: int, new_data: GradeUpdate, db: SessionDep, current_user: User=Depends(get_current_user)):
     try:
@@ -56,6 +60,7 @@ def update_grade(grade_id: int, new_data: GradeUpdate, db: SessionDep, current_u
     except PermissionDenied:
         raise HTTPException(403, detail="Permission denied.")
 
+# Delete a grade (editor or superuser, subject must belong to user)
 @router.delete("/delete-grade/{grade_id}", response_model=bool, dependencies=[Depends(get_current_user)], status_code=status.HTTP_200_OK)
 def delete_grade(grade_id: int, db: SessionDep, current_user: User=Depends(get_current_user)):
     try:

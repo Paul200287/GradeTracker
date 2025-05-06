@@ -10,6 +10,20 @@ from app.exceptions.subject import *
 
 
 def get_exam(db: Session, exam_id: int, owner_id: int):
+    """
+    Retrieve a single exam by ID if the user has access.
+
+    Args:
+        db (Session): Database session.
+        exam_id (int): ID of the exam to retrieve.
+        owner_id (int): ID of the current user.
+
+    Raises:
+        ExamNotFound: If the exam does not exist or access is denied.
+
+    Returns:
+        Exam: The exam object.
+    """
     current_user = db.query(User).filter(User.id == owner_id).first()
 
     # Superuser can access any exam
@@ -25,6 +39,16 @@ def get_exam(db: Session, exam_id: int, owner_id: int):
 
 
 def get_exams(db: Session, owner_id: int):
+    """
+    Retrieve all exams visible to the current user.
+
+    Args:
+        db (Session): Database session.
+        owner_id (int): ID of the current user.
+
+    Returns:
+        List[Exam]: List of exam objects accessible to the user.
+    """
     current_user = db.query(User).filter(User.id == owner_id).first()
 
     # Superuser can access all exams
@@ -36,6 +60,22 @@ def get_exams(db: Session, owner_id: int):
 
 
 def create_exam(db: Session, exam_data: ExamCreate, owner_id: int):
+    """
+    Create a new exam if the user is allowed.
+
+    Args:
+        db (Session): Database session.
+        exam_data (ExamCreate): Data for the new exam.
+        owner_id (int): ID of the current user.
+
+    Raises:
+        SubjectNotFound: If the subject does not exist.
+        SubjectAccessDenied: If the user does not own the subject.
+        PermissionDenied: If the user is not an editor or superuser.
+
+    Returns:
+        Exam: The created exam object.
+    """
     current_user = db.query(User).filter(User.id == owner_id).first()
 
     # Superuser can create exam for any subject
@@ -69,6 +109,23 @@ def create_exam(db: Session, exam_data: ExamCreate, owner_id: int):
 
 
 def update_exam(db: Session, exam_id: int, exam_data: ExamUpdate, owner_id: int):
+    """
+    Update an existing exam if the user has permission.
+
+    Args:
+        db (Session): Database session.
+        exam_id (int): ID of the exam to update.
+        exam_data (ExamUpdate): New data for the exam.
+        owner_id (int): ID of the current user.
+
+    Raises:
+        ExamNotFound: If the exam does not exist.
+        SubjectAccessDenied: If the user does not own the subject.
+        PermissionDenied: If the user is not an editor or superuser.
+
+    Returns:
+        Exam: The updated exam object.
+    """
     # Get the exam to update
     db_exam = db.query(Exam).filter(Exam.id == exam_id).first()
     if not db_exam:
@@ -95,6 +152,22 @@ def update_exam(db: Session, exam_id: int, exam_data: ExamUpdate, owner_id: int)
 
 
 def delete_exam(db: Session, exam_id: int, owner_id: int):
+    """
+    Soft-delete an exam if the user has permission.
+
+    Args:
+        db (Session): Database session.
+        exam_id (int): ID of the exam to delete.
+        owner_id (int): ID of the current user.
+
+    Raises:
+        ExamNotFound: If the exam does not exist.
+        SubjectAccessDenied: If the user does not own the subject.
+        PermissionDenied: If the user is not an editor or superuser.
+
+    Returns:
+        bool: True if deletion was successful.
+    """
     db_exam = db.query(Exam).filter(Exam.id == exam_id).first()
     if not db_exam:
         raise ExamNotFound()

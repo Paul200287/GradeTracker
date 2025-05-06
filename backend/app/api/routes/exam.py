@@ -13,6 +13,7 @@ from app.exceptions.subject import *
 
 router = APIRouter()
 
+# Get a single exam by ID if the user has access
 @router.get("/{exam_id}", response_model=ExamRead, dependencies=[Depends(get_current_user)], status_code=status.HTTP_200_OK)
 def get_exam(db: SessionDep, exam_id: int, current_user: User=Depends(get_current_user)):
     try:
@@ -22,6 +23,7 @@ def get_exam(db: SessionDep, exam_id: int, current_user: User=Depends(get_curren
     except PermissionDenied:
         raise HTTPException(403, detail="Permission denied.")
 
+# Get all exams visible to the current user
 @router.get("/", response_model=List[ExamRead], dependencies=[Depends(get_current_user)], status_code=status.HTTP_200_OK)
 def get_exams(db: SessionDep, current_user: User=Depends(get_current_user)):
     try:
@@ -29,6 +31,7 @@ def get_exams(db: SessionDep, current_user: User=Depends(get_current_user)):
     except PermissionDenied:
         raise HTTPException(403, detail="Permission denied.")
 
+# Create a new exam (requires editor or superuser)
 @router.post("/create-exam", response_model=ExamRead, dependencies=[Depends(get_current_user)], status_code=status.HTTP_201_CREATED)
 def create_exam(db: SessionDep, data: ExamCreate, current_user: User=Depends(get_current_user)):
     try:
@@ -40,6 +43,7 @@ def create_exam(db: SessionDep, data: ExamCreate, current_user: User=Depends(get
     except PermissionDenied:
         raise HTTPException(403, detail="Permission denied.")
 
+# Update an existing exam (requires editor or superuser)
 @router.put("/update-exam/{exam_id}", response_model=ExamRead, dependencies=[Depends(get_current_user)], status_code=status.HTTP_201_CREATED)
 def update_exam(db: SessionDep, exam_id: int, new_data: ExamUpdate, current_user: User=Depends(get_current_user)):
     try:
@@ -51,6 +55,7 @@ def update_exam(db: SessionDep, exam_id: int, new_data: ExamUpdate, current_user
     except PermissionDenied:
         raise HTTPException(403, detail="Permission denied.")
 
+# Soft-delete an exam (requires editor or superuser)
 @router.delete("/delete-exam/{exam_id}", response_model=bool, dependencies=[Depends(get_current_user)], status_code=status.HTTP_200_OK)
 def delete_exam(db: SessionDep, exam_id: int, current_user: User=Depends(get_current_user)):
     try:
