@@ -5,57 +5,52 @@ from app.models.user import User
 from app.models.role import Role
 from app.schemas.exam import ExamCreate, ExamRead, ExamUpdate
 from datetime import datetime
+from app.exceptions.exam import *
+from app.exceptions.subject import *
 
 
 def get_exam(db: Session, exam_id: int, owner_id: int):
     current_user = db.query(User).filter(User.id == owner_id).first()
 
-    if current_user and current_user.role == Role.SUPERUSER:
+    # Superuser can access any exam
+    if current_user.role == Role.SUPERUSER:
         db_exam = db.query(Exam).filter(Exam.id == exam_id).first()
-
     else:
-        db_exam = db.query(Exam).join(Subject).filter(
-            Exam.id == exam_id,
-            Subject.user_id == owner_id
-        ).first()
+        db_exam = db.query(Exam).join(Subject).filter(Exam.id == exam_id, Subject.user_id == owner_id).first()
 
     if not db_exam:
-        return None
-    
+        raise ExamNotFound()
+
     return db_exam
+
 
 def get_exams(db: Session, owner_id: int):
     current_user = db.query(User).filter(User.id == owner_id).first()
 
-    if current_user and current_user.role == Role.SUPERUSER:
-        db_exams = db.query(Exam).filter(Exam.deleted_at == None).all()
+    # Superuser can access all exams
+    if current_user.role == Role.SUPERUSER:
+        return db.query(Exam).filter(Exam.deleted_at == None).all()
 
-    else:
-        db_exams = db.query(Exam).join(Subject).filter(
-            Exam.deleted_at == None,
-            Subject.user_id == owner_id
-        ).all()
+    # Others only their own
+    return db.query(Exam).join(Subject).filter(Exam.deleted_at == None, Subject.user_id == owner_id).all()
 
-    if not db_exams:
-        return None
-    
-    return db_exams
 
-def create_exam(db: Session, exam_data: ExamCreate, owner_id: int):    
+def create_exam(db: Session, exam_data: ExamCreate, owner_id: int):
     current_user = db.query(User).filter(User.id == owner_id).first()
 
-    if current_user and current_user.role == Role.SUPERUSER:
+    # Superuser can create exam for any subject
+    if current_user.role == Role.SUPERUSER:
         subject = db.query(Subject).filter(Subject.id == exam_data.subject_id).first()
         if not subject:
-            return None
+            raise SubjectNotFound()
     else:
-        subject = db.query(Subject).filter(
-            Subject.id == exam_data.subject_id,
-            Subject.user_id == owner_id
-        ).first()
+        # Editor must own the subject
+        subject = db.query(Subject).filter(Subject.id == exam_data.subject_id, Subject.user_id == owner_id).first()
 
-        if not subject or current_user.role != Role.EDITOR:
-            return None
+        if not subject:
+            raise SubjectAccessDenied()
+        if current_user.role != Role.EDITOR:
+            raise PermissionDenied()
 
     new_exam = Exam(
         title=exam_data.title,
@@ -72,24 +67,24 @@ def create_exam(db: Session, exam_data: ExamCreate, owner_id: int):
 
     return new_exam
 
-def update_exam(db: Session, exam_id: int, exam_data: ExamUpdate, owner_id: int):
-    db_exam = db.query(Exam).filter(Exam.id == exam_id).first()
 
+def update_exam(db: Session, exam_id: int, exam_data: ExamUpdate, owner_id: int):
+    # Get the exam to update
+    db_exam = db.query(Exam).filter(Exam.id == exam_id).first()
     if not db_exam:
-        return None
+        raise ExamNotFound()
 
     current_user = db.query(User).filter(User.id == owner_id).first()
 
-    if not current_user:
-        return None
-
+    # Check permissions
     if current_user.role != Role.SUPERUSER:
         subject = db.query(Subject).filter(Subject.id == db_exam.subject_id).first()
-        if not subject or subject.user_id != owner_id or current_user.role != Role.EDITOR:
-            return None
+        if not subject or subject.user_id != owner_id:
+            raise SubjectAccessDenied()
+        if current_user.role != Role.EDITOR:
+            raise PermissionDenied()
 
     update_data = exam_data.dict(exclude_unset=True)
-
     for key, val in update_data.items():
         setattr(db_exam, key, val)
 
@@ -101,18 +96,18 @@ def update_exam(db: Session, exam_id: int, exam_data: ExamUpdate, owner_id: int)
 
 def delete_exam(db: Session, exam_id: int, owner_id: int):
     db_exam = db.query(Exam).filter(Exam.id == exam_id).first()
-
     if not db_exam:
-        return None
+        raise ExamNotFound()
 
     current_user = db.query(User).filter(User.id == owner_id).first()
-    if not current_user:
-        return None
 
+    # Check permissions
     if current_user.role != Role.SUPERUSER:
         subject = db.query(Subject).filter(Subject.id == db_exam.subject_id).first()
-        if not subject or subject.user_id != owner_id or current_user.role != Role.EDITOR:
-            return None
+        if not subject or subject.user_id != owner_id:
+            raise SubjectAccessDenied()
+        if current_user.role != Role.EDITOR:
+            raise PermissionDenied()
 
     db_exam.deleted_at = datetime.utcnow()
     db.commit()
