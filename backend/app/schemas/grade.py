@@ -11,5 +11,4 @@ class GradeUpdate(GradeBase):
     pass
 
 class GradeRead(GradeBase):
-    id: int
     exam_id: int
