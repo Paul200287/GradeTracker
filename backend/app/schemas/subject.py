@@ -16,6 +16,7 @@ class SubjectCreate(SubjectBase):
 
 
 class SubjectRead(SubjectBase):
+    id: int
     created_at: datetime
     updated_at: Optional[datetime]
     deleted_at: Optional[datetime]
