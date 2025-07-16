@@ -29,6 +29,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      decrypt:
+        specifier: ^0.0.1
+        version: 0.0.1
       jose:
         specifier: ^6.0.11
         version: 6.0.11
@@ -1021,6 +1024,9 @@ packages:
     peerDependenciesMeta:
       supports-color:
         optional: true
+
+  decrypt@0.0.1:
+    resolution: {integrity: sha512-A01C44Nh51Z49kMQgUT5LfpqDT2+9xpVqI0XVpDWQAzVVmFzAY+OefxJSMBUKeFiWPDjyUZtS/GTmBRnIpeZbQ==}
 
   deep-is@0.1.4:
     resolution: {integrity: sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ==}
@@ -3045,6 +3051,8 @@ snapshots:
   debug@4.4.1:
     dependencies:
       ms: 2.1.3
+
+  decrypt@0.0.1: {}
 
   deep-is@0.1.4: {}
 
