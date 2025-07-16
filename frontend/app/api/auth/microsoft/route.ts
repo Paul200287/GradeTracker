@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
 
     // Mock successful Microsoft authentication
     const token =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6Ik1pY3Jvc29mdCBVc2VyIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+      "TOKEN-PLACEHOLDER"
 
     const user = {
       id: 2,
